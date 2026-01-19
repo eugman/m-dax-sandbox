@@ -46,7 +46,7 @@ Dependencies: pandas (Python 3.10+). Polars/pyarrow optional.
 from python_m.runtime import evaluate
 
 result = evaluate('let x = 1 + 2 in x')
-print(result.value)  # 3
+print(result)  # 3
 
 # Tables
 result = evaluate('''
@@ -56,7 +56,7 @@ let
 in
     Filtered
 ''')
-print(result.value.to_pandas())
+print(result.to_pandas())
 ```
 
 ## Issues
