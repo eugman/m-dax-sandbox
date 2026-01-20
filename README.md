@@ -1,67 +1,102 @@
 # m-dax-sandbox
 
-Power Query M and DAX runtimes for Python. Evaluate M and DAX expressions directly without Power BI.
+This repo provides two things:
 
-**Web sandbox**: https://vibes.sqlgene.com/m-dax-sandbox/
+1. **[Web Sandbox](https://vibes.sqlgene.com/m-dax-sandbox/)** — Try Power Query M and DAX expressions in your browser
+2. **Python Wheels** — Run M expressions locally or in Microsoft Fabric notebooks
 
-## Install
+## Web Sandbox
 
-Download wheels from [Releases](https://github.com/eugman/m-dax-sandbox/releases) or the `wheels/` folder.
+An interactive editor for testing Power Query M and DAX expressions without Power BI:
 
-**Local:**
+- Write M or DAX code with syntax highlighting
+- Load sample data (CSV) or paste your own
+- See results instantly in a table view
+- Transpile M expressions to Python (Pandas, Polars, PySpark, DuckDB)
+
+DAX support is in early alpha (~20 functions supported).
+
+## Python Wheels
+
+Run M expressions in Python. Download from [Releases](https://github.com/eugman/m-dax-sandbox/releases) or the `wheels/` folder.
+
+| Package | Purpose |
+|---------|---------|
+| `python_m` | Core M runtime — evaluate M expressions |
+| `m_runtime` | Helper for pandas DataFrames (useful in Fabric) |
+
+### Install
+
 ```bash
 pip install python_m-0.1.0-py3-none-any.whl
-pip install m_runtime-0.1.0-py3-none-any.whl  # optional, for Fabric
+pip install m_runtime-0.1.0-py3-none-any.whl  # optional
 ```
 
-**Microsoft Fabric Notebook:**
+Requires Python 3.10+ and pandas.
 
-1. Open your notebook in Fabric
-2. Click "Resources" in the left sidebar (folder icon)
-3. Upload the wheel files
-4. In the first cell:
+### Quick Examples
 
-```python
-%pip install "builtin/python_m-0.1.0-py3-none-any.whl"
-%pip install "builtin/m_runtime-0.1.0-py3-none-any.whl"
-```
-
-Then use `run_m()` with your DataFrames:
-
-```python
-from m_runtime import run_m
-
-result = run_m('''
-    Table.SelectRows(Sales, each [Amount] > 100)
-''', tables={"Sales": df_sales})
-
-display(result)
-```
-
-Dependencies: pandas (Python 3.10+). Polars/pyarrow optional.
-
-## Usage
-
+**Basic expressions:**
 ```python
 from python_m.runtime import evaluate
 
-result = evaluate('let x = 1 + 2 in x')
-print(result)  # 3
+evaluate('1 + 2 * 3')
+# Output: 7
 
-# Tables
+evaluate('Text.Upper("hello")')
+# Output: 'HELLO'
+```
+
+**Tables:**
+```python
 result = evaluate('''
 let
-    Source = #table({"Name", "Age"}, {{"Alice", 30}, {"Bob", 25}}),
-    Filtered = Table.SelectRows(Source, each [Age] > 26)
+    Source = #table({"Name", "Age"}, {{"Alice", 30}, {"Bob", 25}, {"Carol", 35}}),
+    Filtered = Table.SelectRows(Source, each [Age] > 28)
 in
     Filtered
 ''')
 print(result.to_pandas())
+# Output:
+#     Name  Age
+# 0  Alice   30
+# 1  Carol   35
 ```
+
+**With DataFrames (`m_runtime`):**
+```python
+import pandas as pd
+from m_runtime import run_m
+
+sales = pd.DataFrame({
+    'Product': ['Widget', 'Gadget', 'Widget'],
+    'Amount': [100, 200, 150]
+})
+
+result = run_m('Table.SelectRows(Sales, each [Amount] > 120)', tables={'Sales': sales})
+print(result)
+# Output:
+#   Product  Amount
+# 0  Gadget     200
+# 1  Widget     150
+```
+
+See [examples.md](examples.md) for more examples including Fabric notebooks, joins, and aggregations. For supported M functions, see [wheels/SUPPORTED_FUNCTIONS.md](wheels/SUPPORTED_FUNCTIONS.md).
+
+### Microsoft Fabric
+
+1. Upload wheel files to notebook Resources
+2. Install:
+   ```python
+   %pip install "builtin/python_m-0.1.0-py3-none-any.whl"
+   %pip install "builtin/m_runtime-0.1.0-py3-none-any.whl"
+   ```
+3. Use `run_m()` with your DataFrames
 
 ## Issues
 
-Report bugs and feature requests: https://github.com/eugman/m-dax-sandbox/issues
+Report bugs and feature requests for both the sandbox and wheels:
+[GitHub Issues](https://github.com/eugman/m-dax-sandbox/issues)
 
 ## License
 
