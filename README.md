@@ -93,6 +93,8 @@ See [examples.md](examples.md) for more examples including Fabric notebooks, joi
    ```
 3. Use `run_m()` with your DataFrames
 
+![M runtime in a Fabric notebook](images/fabric-notebook-example.png)
+
 ## Issues
 
 Report bugs and feature requests for both the sandbox and wheels:
