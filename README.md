@@ -16,6 +16,8 @@ An interactive editor for testing Power Query M and DAX expressions without Powe
 
 DAX support is in early alpha (~20 functions supported).
 
+![M & DAX Sandbox](images/sandbox-example.png)
+
 ## Python Wheels
 
 Run M expressions in Python. Download from [Releases](https://github.com/eugman/m-dax-sandbox/releases) or the `wheels/` folder.
